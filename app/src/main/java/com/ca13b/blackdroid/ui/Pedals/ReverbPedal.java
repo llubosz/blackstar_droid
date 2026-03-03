@@ -16,6 +16,7 @@ import com.google.android.material.slider.Slider;
 public class ReverbPedal {
 
     private AutoCompleteTextView reverbTypeList;
+    private ArrayAdapter<String> reverbAdapter;
     private Slider slReverbSize;
     private Slider slReverbLevel;
     private MaterialButton reverbPowerSwitch;
@@ -41,9 +42,9 @@ public class ReverbPedal {
 
         reverbTypeList = root.findViewById(R.id.reverb_type_list);
         String[] reverbTypes = context.getResources().getStringArray(R.array.reverb_types);
-        ArrayAdapter<String> adapter = new ArrayAdapter<>(context,
+        reverbAdapter = new ArrayAdapter<>(context,
                 android.R.layout.simple_dropdown_item_1line, reverbTypes);
-        reverbTypeList.setAdapter(adapter);
+        reverbTypeList.setAdapter(reverbAdapter);
         reverbTypeList.setOnItemClickListener((parent, view, position, id) ->
                 amp.SetControlValue(ctrlReverbType, position));
 
@@ -73,6 +74,7 @@ public class ReverbPedal {
         if (ctrlReverbType.controlValue >= 0 && ctrlReverbType.controlValue < reverbTypes.length) {
             reverbTypeList.setText(reverbTypes[ctrlReverbType.controlValue], false);
         }
+        reverbAdapter.getFilter().filter(null);
 
         reverbPowerOn = ctrlReverbPower.controlValue == 1;
         reverbPowerLed.setBackground(ContextCompat.getDrawable(context,

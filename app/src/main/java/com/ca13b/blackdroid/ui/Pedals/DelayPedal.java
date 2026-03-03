@@ -15,6 +15,7 @@ import com.google.android.material.slider.Slider;
 
 public class DelayPedal {
     private AutoCompleteTextView delayTypeList;
+    private ArrayAdapter<String> delayAdapter;
     private Slider slDelayFeedback;
     private Slider slDelayLevel;
     private Slider slDelayTime;
@@ -45,9 +46,9 @@ public class DelayPedal {
 
         delayTypeList = root.findViewById(R.id.delay_type_list);
         String[] delayTypes = context.getResources().getStringArray(R.array.delay_types);
-        ArrayAdapter<String> adapter = new ArrayAdapter<>(context,
+        delayAdapter = new ArrayAdapter<>(context,
                 android.R.layout.simple_dropdown_item_1line, delayTypes);
-        delayTypeList.setAdapter(adapter);
+        delayTypeList.setAdapter(delayAdapter);
         delayTypeList.setOnItemClickListener((parent, view, position, id) ->
                 amp.SetControlValue(ctrlDelayType, position));
 
@@ -80,6 +81,7 @@ public class DelayPedal {
         if (ctrlDelayType.controlValue >= 0 && ctrlDelayType.controlValue < delayTypes.length) {
             delayTypeList.setText(delayTypes[ctrlDelayType.controlValue], false);
         }
+        delayAdapter.getFilter().filter(null);
 
         delayPowerOn = ctrlDelayPower.controlValue == 1;
         delayPowerLed.setBackground(ContextCompat.getDrawable(context,

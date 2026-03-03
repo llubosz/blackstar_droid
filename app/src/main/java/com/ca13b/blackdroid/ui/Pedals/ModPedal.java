@@ -17,6 +17,7 @@ import com.google.android.material.slider.Slider;
 public class ModPedal {
 
     private AutoCompleteTextView modTypeList;
+    private ArrayAdapter<String> modAdapter;
     private Slider slModSeqVal;
     private Slider slModDepth;
     private Slider slModSpeed;
@@ -59,9 +60,9 @@ public class ModPedal {
 
         modTypeList = root.findViewById(R.id.mod_type_list);
         String[] modTypes = context.getResources().getStringArray(R.array.mod_types);
-        ArrayAdapter<String> adapter = new ArrayAdapter<>(context,
+        modAdapter = new ArrayAdapter<>(context,
                 android.R.layout.simple_dropdown_item_1line, modTypes);
-        modTypeList.setAdapter(adapter);
+        modTypeList.setAdapter(modAdapter);
         modTypeList.setOnItemClickListener((parent, view, position, id) -> {
             updateModTypeUI(position);
             amp.SetControlValue(ctrlModType, position);
@@ -103,6 +104,7 @@ public class ModPedal {
         if (ctrlModType.controlValue >= 0 && ctrlModType.controlValue < modTypes.length) {
             modTypeList.setText(modTypes[ctrlModType.controlValue], false);
         }
+        modAdapter.getFilter().filter(null);
 
         modPowerOn = ctrlModPower.controlValue == 1;
         modPowerLed.setBackground(ContextCompat.getDrawable(context,

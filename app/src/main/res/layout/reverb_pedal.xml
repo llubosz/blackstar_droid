@@ -61,6 +61,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:inputType="none"
+                android:saveEnabled="false"
                 android:textColor="@color/colorOnSurface" />
 
         </com.google.android.material.textfield.TextInputLayout>

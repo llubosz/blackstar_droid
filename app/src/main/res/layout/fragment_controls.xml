@@ -6,6 +6,7 @@
     android:layout_height="match_parent"
     android:background="@color/colorBackground"
     android:fillViewport="true"
+    android:overScrollMode="never"
     tools:context=".ui.ControlsFragment">
 
     <LinearLayout
@@ -47,6 +48,7 @@
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:inputType="none"
+                        android:saveEnabled="false"
                         android:textColor="@color/colorOnSurface" />
 
                 </com.google.android.material.textfield.TextInputLayout>

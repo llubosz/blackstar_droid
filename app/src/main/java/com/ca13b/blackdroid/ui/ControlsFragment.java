@@ -25,6 +25,7 @@ public class ControlsFragment extends Fragment {
     private Slider slTreble;
     private Slider slIsf;
     private AutoCompleteTextView voiceDropdown;
+    private ArrayAdapter<String> voiceAdapter;
     Control ctrlGain;
     Control ctrlVolume;
     Control ctrlBass;
@@ -69,9 +70,9 @@ public class ControlsFragment extends Fragment {
 
         voiceDropdown = root.findViewById(R.id.voice_list);
         String[] voiceTypes = getResources().getStringArray(R.array.voice_types);
-        ArrayAdapter<String> adapter = new ArrayAdapter<>(requireContext(),
+        voiceAdapter = new ArrayAdapter<>(requireContext(),
                 android.R.layout.simple_dropdown_item_1line, voiceTypes);
-        voiceDropdown.setAdapter(adapter);
+        voiceDropdown.setAdapter(voiceAdapter);
         voiceDropdown.setOnItemClickListener((parent, view, position, id) ->
                 amp.SetControlValue(ctrlVoice, position));
 
@@ -90,6 +91,7 @@ public class ControlsFragment extends Fragment {
         if (ctrlVoice.controlValue >= 0 && ctrlVoice.controlValue < voiceTypes.length) {
             voiceDropdown.setText(voiceTypes[ctrlVoice.controlValue], false);
         }
+        voiceAdapter.getFilter().filter(null);
     }
 
     private final Slider.OnChangeListener sliderChanged = (slider, value, fromUser) -> {
