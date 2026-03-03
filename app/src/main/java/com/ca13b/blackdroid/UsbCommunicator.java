@@ -18,7 +18,7 @@ import android.widget.Toast;
 
 import com.ca13b.blackdroid.ui.PresetsFragment;
 
-public class UsbCommunicator {
+public class UsbCommunicator implements AmpCommunicator {
 
     private Object lock = new Object();
 
@@ -36,9 +36,9 @@ public class UsbCommunicator {
     public UsbCommunicator(Context context, BlackstarAmp amp) {
         this.amp = amp;
         this._context = context;
-        if (usbDevice == null) setUpDevice();
     }
 
+    @Override
     public void setUpDevice() {
         usbManager = (UsbManager) _context.getSystemService(Context.USB_SERVICE);
 
@@ -79,6 +79,7 @@ public class UsbCommunicator {
         }
     }
 
+    @Override
     public void SendData(byte[] data) {
         ByteBuffer buffer = ByteBuffer.wrap(data);
 
@@ -129,8 +130,15 @@ public class UsbCommunicator {
     }
 
     @Override
+    public void shutdown() {
+        if (MainActivity.usbReceiverThread != null) {
+            MainActivity.usbReceiverThread.interrupt();
+        }
+    }
+
+    @Override
     protected void finalize() throws Throwable {
-        MainActivity.usbReceiverThread.interrupt();
+        shutdown();
         super.finalize();
     }
 }

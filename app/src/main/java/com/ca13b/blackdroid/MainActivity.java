@@ -11,6 +11,8 @@ import android.os.Bundle;
 import android.util.Log;
 import android.widget.Toast;
 
+import java.util.HashMap;
+
 import com.ca13b.blackdroid.ui.TunerFragment;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
 
@@ -58,8 +60,24 @@ public class MainActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
 
         super.onCreate(savedInstanceState);
-        blackstarAmp = new BlackstarAmp(this);
         instance = this;
+
+        blackstarAmp = new BlackstarAmp(this);
+
+        AmpCommunicator communicator;
+        if (shouldUseMockAmp()) {
+            communicator = new MockAmpCommunicator(this, blackstarAmp);
+            Toast.makeText(this, "Using virtual amp (no USB device found)", Toast.LENGTH_LONG).show();
+            Log.i("BSD/MainActivity", "Using MockAmpCommunicator");
+        } else {
+            communicator = new UsbCommunicator(this, blackstarAmp);
+            Log.i("BSD/MainActivity", "Using UsbCommunicator");
+        }
+
+        blackstarAmp.setCommunicator(communicator);
+        communicator.setUpDevice();
+        blackstarAmp.InitializeAmp();
+
         setContentView(R.layout.activity_main);
         BottomNavigationView navView = findViewById(R.id.nav_view);
         navController = Navigation.findNavController(this, R.id.nav_host_fragment);
@@ -72,6 +90,23 @@ public class MainActivity extends AppCompatActivity {
         IntentFilter permissionFilter = new IntentFilter(ACTION_USB_PERMISSION);
         registerReceiver(usbReceiver, permissionFilter, Context.RECEIVER_NOT_EXPORTED);
 
+    }
+
+    private boolean shouldUseMockAmp() {
+        if (BuildConfig.FORCE_MOCK_AMP) {
+            return true;
+        }
+        UsbManager usbManager = (UsbManager) getSystemService(Context.USB_SERVICE);
+        if (usbManager == null) {
+            return true;
+        }
+        HashMap<String, UsbDevice> devices = usbManager.getDeviceList();
+        for (UsbDevice device : devices.values()) {
+            if (device.getVendorId() == BlackstarAmp.VendorId) {
+                return false;
+            }
+        }
+        return true;
     }
 
 

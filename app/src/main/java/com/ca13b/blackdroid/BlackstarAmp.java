@@ -15,7 +15,7 @@ public class BlackstarAmp implements Serializable {
     public Dictionary<Integer, Control> Controls;
     private static HashMap<Integer, String> ampModels;
     private static String tag = "BSD/UsbCommunicator";
-    private static UsbCommunicator usbCommunicator;
+    private static AmpCommunicator usbCommunicator;
     public boolean isInitialized;
     public int retryCount;
     public final int RETRY_MAX = 5;
@@ -23,7 +23,6 @@ public class BlackstarAmp implements Serializable {
 
     public BlackstarAmp(Context context) {
 
-        usbCommunicator = new UsbCommunicator(context,this);
         _context = context;
 
         retryCount = 0;
@@ -63,11 +62,10 @@ public class BlackstarAmp implements Serializable {
         Controls.put(30, new Control("reverb_size", 0x1e, 0, 31));
         Controls.put(32, new Control("reverb_level", 0x20, 0, 127));
         Controls.put(36, new Control("fx_focus", 0x24, 1, 3));//01 is Mod, 02 is delay, 03 is reverb.
+    }
 
-
-        Log.i(tag, "Calling InitializeAmp now");
-
-        if (usbCommunicator!=null) InitializeAmp();
+    public void setCommunicator(AmpCommunicator communicator) {
+        usbCommunicator = communicator;
     }
 
     public void InitializeAmp(){
