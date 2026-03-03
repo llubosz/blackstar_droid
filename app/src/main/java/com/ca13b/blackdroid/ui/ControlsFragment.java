@@ -1,33 +1,30 @@
 package com.ca13b.blackdroid.ui;
 
 import android.os.Bundle;
-import android.os.StrictMode;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.AdapterView;
-import android.widget.SeekBar;
-import android.widget.Spinner;
+import android.widget.ArrayAdapter;
+import android.widget.AutoCompleteTextView;
 
 import androidx.annotation.NonNull;
 import androidx.fragment.app.Fragment;
-import androidx.lifecycle.ViewModelProviders;
 
 import com.ca13b.blackdroid.BlackstarAmp;
 import com.ca13b.blackdroid.Control;
 import com.ca13b.blackdroid.MainActivity;
 import com.ca13b.blackdroid.R;
+import com.google.android.material.slider.Slider;
 
 public class ControlsFragment extends Fragment {
     private BlackstarAmp amp;
-    private ControlsViewModel controlsViewModel;
-    private SeekBar sbVolume;
-    private SeekBar sbGain;
-    private SeekBar sbBass;
-    private SeekBar sbMid;
-    private SeekBar sbTreble;
-    private Spinner voices;
-    private SeekBar sbIsf;
+    private Slider slVolume;
+    private Slider slGain;
+    private Slider slBass;
+    private Slider slMid;
+    private Slider slTreble;
+    private Slider slIsf;
+    private AutoCompleteTextView voiceDropdown;
     Control ctrlGain;
     Control ctrlVolume;
     Control ctrlBass;
@@ -57,94 +54,72 @@ public class ControlsFragment extends Fragment {
         ctrlTreble = amp.Controls.get(6);
         ctrlIsf = amp.Controls.get(7);
 
+        slVolume = root.findViewById(R.id.volume_slider);
+        slVolume.addOnChangeListener(sliderChanged);
+        slGain = root.findViewById(R.id.gain_slider);
+        slGain.addOnChangeListener(sliderChanged);
+        slBass = root.findViewById(R.id.bass_slider);
+        slBass.addOnChangeListener(sliderChanged);
+        slMid = root.findViewById(R.id.middle_slider);
+        slMid.addOnChangeListener(sliderChanged);
+        slTreble = root.findViewById(R.id.treble_slider);
+        slTreble.addOnChangeListener(sliderChanged);
+        slIsf = root.findViewById(R.id.isf_slider);
+        slIsf.addOnChangeListener(sliderChanged);
 
-        sbGain = root.findViewById(R.id.gain_slider);
-        sbGain.setOnSeekBarChangeListener(seekBarChanged);
-        sbVolume = root.findViewById(R.id.volume_slider);
-        sbVolume.setOnSeekBarChangeListener(seekBarChanged);
-        sbBass = root.findViewById(R.id.bass_slider);
-        sbBass.setOnSeekBarChangeListener(seekBarChanged);
-        sbMid = root.findViewById(R.id.middle_slider);
-        sbMid.setOnSeekBarChangeListener(seekBarChanged);
-        sbTreble = root.findViewById(R.id.treble_slider);
-        sbTreble.setOnSeekBarChangeListener(seekBarChanged);
-        voices = root.findViewById(R.id.voice_list);
-        voices.setOnItemSelectedListener(ddChange);
-        sbIsf = root.findViewById(R.id.isf_slider);
-        sbIsf.setOnSeekBarChangeListener(seekBarChanged);
+        voiceDropdown = root.findViewById(R.id.voice_list);
+        String[] voiceTypes = getResources().getStringArray(R.array.voice_types);
+        ArrayAdapter<String> adapter = new ArrayAdapter<>(requireContext(),
+                android.R.layout.simple_dropdown_item_1line, voiceTypes);
+        voiceDropdown.setAdapter(adapter);
+        voiceDropdown.setOnItemClickListener((parent, view, position, id) ->
+                amp.SetControlValue(ctrlVoice, position));
 
         getInitialValues();
     }
 
-    private void getInitialValues(){
-        sbVolume.setProgress(ctrlVolume.controlValue);
-        sbGain.setProgress(ctrlGain.controlValue);
-        sbBass.setProgress(ctrlBass.controlValue);
-        sbMid.setProgress(ctrlMid.controlValue);
-        sbTreble.setProgress(ctrlTreble.controlValue);
-        sbIsf.setProgress(ctrlIsf.controlValue);
-        voices.setSelection(ctrlVoice.controlValue);
+    private void getInitialValues() {
+        slVolume.setValue(ctrlVolume.controlValue);
+        slGain.setValue(ctrlGain.controlValue);
+        slBass.setValue(ctrlBass.controlValue);
+        slMid.setValue(ctrlMid.controlValue);
+        slTreble.setValue(ctrlTreble.controlValue);
+        slIsf.setValue(ctrlIsf.controlValue);
+
+        String[] voiceTypes = getResources().getStringArray(R.array.voice_types);
+        if (ctrlVoice.controlValue >= 0 && ctrlVoice.controlValue < voiceTypes.length) {
+            voiceDropdown.setText(voiceTypes[ctrlVoice.controlValue], false);
+        }
     }
 
-    private AdapterView.OnItemSelectedListener ddChange = new AdapterView.OnItemSelectedListener() {
-        @Override
-        public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
-            amp.SetControlValue(ctrlVoice, position);
+    private final Slider.OnChangeListener sliderChanged = (slider, value, fromUser) -> {
+        if (!fromUser) return;
+        int progress = (int) value;
+        Control ctrlTemp = null;
+
+        int id = slider.getId();
+        if (id == R.id.gain_slider) {
+            ctrlTemp = ctrlGain;
+        } else if (id == R.id.volume_slider) {
+            ctrlTemp = ctrlVolume;
+        } else if (id == R.id.bass_slider) {
+            ctrlTemp = ctrlBass;
+        } else if (id == R.id.middle_slider) {
+            ctrlTemp = ctrlMid;
+        } else if (id == R.id.treble_slider) {
+            ctrlTemp = ctrlTreble;
+        } else if (id == R.id.isf_slider) {
+            ctrlTemp = ctrlIsf;
         }
 
-        @Override
-        public void onNothingSelected(AdapterView<?> parent) {}
-    };
-
-    private SeekBar.OnSeekBarChangeListener seekBarChanged = new SeekBar.OnSeekBarChangeListener() {
-        int progress = 0;
-
-        @Override
-        public void onProgressChanged(SeekBar seekBar, int progresValue, boolean fromUser) { progress = progresValue;}
-
-        @Override
-        public void onStartTrackingTouch(SeekBar seekBar) { }
-
-        @Override
-        public void onStopTrackingTouch(SeekBar seekBar) {
-            Control ctrlTemp = null;
-
-            switch (seekBar.getId()){
-                case R.id.gain_slider: {
-                    ctrlTemp = ctrlGain;
-                    break;
-                }
-                case R.id.volume_slider: {
-                    ctrlTemp = ctrlVolume;
-                    break;
-                }
-                case R.id.bass_slider: {
-                    ctrlTemp = ctrlBass;
-                    break;
-                }
-                case R.id.middle_slider: {
-                    ctrlTemp = ctrlMid;
-                    break;
-                }
-                case R.id.treble_slider: {
-                    ctrlTemp = ctrlTreble;
-                    break;
-                }
-                case R.id.isf_slider: {
-                    ctrlTemp = ctrlIsf;
-                    break;
-                }
-            }
-            if (ctrlTemp == null) return;
-            ctrlTemp.controlValue = progress;
-            amp.SetControlValue(ctrlTemp, (progress*ctrlTemp.maxValue)/100);
-        }
+        if (ctrlTemp == null) return;
+        ctrlTemp.controlValue = progress;
+        amp.SetControlValue(ctrlTemp, (progress * ctrlTemp.maxValue) / 100);
     };
 
     @Override
     public void onDestroy() {
         this.amp = null;
-
         super.onDestroy();
     }
 }

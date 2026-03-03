@@ -5,6 +5,7 @@
     android:layout_height="match_parent"
     android:orientation="vertical"
     android:padding="16dp"
+    android:background="@color/colorBackground"
     tools:context=".ui.PresetsFragment">
 
     <TextView
@@ -14,15 +15,18 @@
         android:text="Presets"
         android:textSize="20sp"
         android:textStyle="bold"
+        android:textColor="@color/colorOnSurface"
         android:paddingBottom="8dp" />
 
     <ListView
         android:id="@+id/list_presets"
         android:layout_width="match_parent"
         android:layout_height="0dp"
-        android:layout_weight="1" />
+        android:layout_weight="1"
+        android:divider="@color/colorBackground"
+        android:dividerHeight="4dp" />
 
-    <Button
+    <com.google.android.material.button.MaterialButton
         android:id="@+id/btn_save_preset"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"

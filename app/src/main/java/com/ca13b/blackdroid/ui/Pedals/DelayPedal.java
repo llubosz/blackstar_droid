@@ -2,23 +2,23 @@ package com.ca13b.blackdroid.ui.Pedals;
 
 import android.content.Context;
 import android.view.View;
-import android.widget.AdapterView;
-import android.widget.ImageButton;
-import android.widget.SeekBar;
-import android.widget.Spinner;
+import android.widget.ArrayAdapter;
+import android.widget.AutoCompleteTextView;
 
 import androidx.core.content.ContextCompat;
 
 import com.ca13b.blackdroid.BlackstarAmp;
 import com.ca13b.blackdroid.Control;
 import com.ca13b.blackdroid.R;
+import com.google.android.material.button.MaterialButton;
+import com.google.android.material.slider.Slider;
 
 public class DelayPedal {
-    private Spinner delay_type_list;
-    private SeekBar sbDelayFeedback;
-    private SeekBar sbDelayLevel;
-    private SeekBar sbDelayTime;
-    private ImageButton delayPowerSwitch;
+    private AutoCompleteTextView delayTypeList;
+    private Slider slDelayFeedback;
+    private Slider slDelayLevel;
+    private Slider slDelayTime;
+    private MaterialButton delayPowerSwitch;
     private View delayPowerLed;
     public Control ctrlDelayFeedback;
     public Control ctrlDelayLevel;
@@ -32,7 +32,7 @@ public class DelayPedal {
     public void InitializeControls(final Context context,
                                    final BlackstarAmp amp,
                                    final View root,
-                                   final SeekBar.OnSeekBarChangeListener seekBarChanged) {
+                                   final Slider.OnChangeListener sliderChanged) {
 
         this.amp = amp;
         this.delayPowerOn = false;
@@ -43,60 +43,46 @@ public class DelayPedal {
         ctrlDelayLevel = amp.Controls.get(26);
         ctrlDelayTime = amp.Controls.get(27);
 
-        delay_type_list = root.findViewById(R.id.delay_type_list);
-        delay_type_list.setOnItemSelectedListener(ddChange);
-        sbDelayLevel = root.findViewById(R.id.delay_level_slider);
-        sbDelayLevel.setOnSeekBarChangeListener(seekBarChanged);
-        sbDelayFeedback = root.findViewById(R.id.delay_feedback_slider);
-        sbDelayFeedback.setOnSeekBarChangeListener(seekBarChanged);
-        sbDelayTime = root.findViewById(R.id.delay_time_slider);
-        sbDelayTime.setOnSeekBarChangeListener(seekBarChanged);
+        delayTypeList = root.findViewById(R.id.delay_type_list);
+        String[] delayTypes = context.getResources().getStringArray(R.array.delay_types);
+        ArrayAdapter<String> adapter = new ArrayAdapter<>(context,
+                android.R.layout.simple_dropdown_item_1line, delayTypes);
+        delayTypeList.setAdapter(adapter);
+        delayTypeList.setOnItemClickListener((parent, view, position, id) ->
+                amp.SetControlValue(ctrlDelayType, position));
+
+        slDelayLevel = root.findViewById(R.id.delay_level_slider);
+        slDelayLevel.addOnChangeListener(sliderChanged);
+        slDelayFeedback = root.findViewById(R.id.delay_feedback_slider);
+        slDelayFeedback.addOnChangeListener(sliderChanged);
+        slDelayTime = root.findViewById(R.id.delay_time_slider);
+        slDelayTime.addOnChangeListener(sliderChanged);
+
         delayPowerLed = root.findViewById(R.id.delay_power_led);
         delayPowerSwitch = root.findViewById(R.id.delay_power_switch);
-        delayPowerSwitch.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-
-                delayPowerOn = !delayPowerOn;
-                ctrlDelayPower.controlValue = delayPowerOn ? 1 : 0;
-
-                if (delayPowerOn) {
-                    delayPowerLed.setBackground(ContextCompat.getDrawable(context, R.drawable.led_on));
-                } else {
-                    delayPowerLed.setBackground(ContextCompat.getDrawable(context, R.drawable.led_off));
-                }
-
-                amp.SetControlValue(ctrlDelayPower, ctrlDelayPower.controlValue);
-            }
+        delayPowerSwitch.setOnClickListener(v -> {
+            delayPowerOn = !delayPowerOn;
+            ctrlDelayPower.controlValue = delayPowerOn ? 1 : 0;
+            delayPowerLed.setBackground(ContextCompat.getDrawable(context,
+                    delayPowerOn ? R.drawable.led_on : R.drawable.led_off));
+            amp.SetControlValue(ctrlDelayPower, ctrlDelayPower.controlValue);
         });
 
         getInitialValues(context);
-
     }
 
+    private void getInitialValues(Context context) {
+        slDelayLevel.setValue(ctrlDelayLevel.controlValue);
+        slDelayFeedback.setValue(ctrlDelayFeedback.controlValue);
+        slDelayTime.setValue(ctrlDelayTime.controlValue);
 
-    private void getInitialValues(Context context){
-        sbDelayLevel.setProgress(ctrlDelayLevel.controlValue);
-        sbDelayFeedback.setProgress(ctrlDelayFeedback.controlValue);
-        sbDelayTime.setProgress(ctrlDelayTime.controlValue);
-        delay_type_list.setSelection(ctrlDelayType.controlValue);
+        String[] delayTypes = context.getResources().getStringArray(R.array.delay_types);
+        if (ctrlDelayType.controlValue >= 0 && ctrlDelayType.controlValue < delayTypes.length) {
+            delayTypeList.setText(delayTypes[ctrlDelayType.controlValue], false);
+        }
 
         delayPowerOn = ctrlDelayPower.controlValue == 1;
-
-        if (delayPowerOn) {
-            delayPowerLed.setBackground(ContextCompat.getDrawable(context, R.drawable.led_on));
-        } else {
-            delayPowerLed.setBackground(ContextCompat.getDrawable(context, R.drawable.led_off));
-        }
+        delayPowerLed.setBackground(ContextCompat.getDrawable(context,
+                delayPowerOn ? R.drawable.led_on : R.drawable.led_off));
     }
-
-    private AdapterView.OnItemSelectedListener ddChange = new AdapterView.OnItemSelectedListener() {
-        @Override
-        public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
-            amp.SetControlValue(ctrlDelayType, position);
-        }
-
-        @Override
-        public void onNothingSelected(AdapterView<?> parent) {}
-    };
 }

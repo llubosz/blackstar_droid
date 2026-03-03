@@ -1,11 +1,9 @@
 package com.ca13b.blackdroid.ui;
 
 import android.os.Bundle;
-import android.os.StrictMode;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.SeekBar;
 
 import androidx.annotation.NonNull;
 import androidx.fragment.app.Fragment;
@@ -18,6 +16,7 @@ import com.ca13b.blackdroid.R;
 import com.ca13b.blackdroid.ui.Pedals.DelayPedal;
 import com.ca13b.blackdroid.ui.Pedals.ModPedal;
 import com.ca13b.blackdroid.ui.Pedals.ReverbPedal;
+import com.google.android.material.slider.Slider;
 
 public class EffectsFragment extends Fragment {
 
@@ -35,69 +34,41 @@ public class EffectsFragment extends Fragment {
                 ViewModelProviders.of(this).get(EffectsViewModel.class);
         View root = inflater.inflate(R.layout.fragment_effects, container, false);
 
-        reverbPedal.InitializeControls(getContext(), amp, root.findViewById(R.id.reverb_pedal), seekBarChanged);
-        delayPedal.InitializeControls(getContext(), amp, root.findViewById(R.id.delay_pedal), seekBarChanged);
-        modPedal.InitializeControls(getContext(), amp, root.findViewById(R.id.mod_pedal), seekBarChanged);
+        reverbPedal.InitializeControls(getContext(), amp, root.findViewById(R.id.reverb_pedal), sliderChanged);
+        delayPedal.InitializeControls(getContext(), amp, root.findViewById(R.id.delay_pedal), sliderChanged);
+        modPedal.InitializeControls(getContext(), amp, root.findViewById(R.id.mod_pedal), sliderChanged);
         return root;
     }
 
-    public SeekBar.OnSeekBarChangeListener seekBarChanged = new SeekBar.OnSeekBarChangeListener() {
-        int progress = 0;
+    public Slider.OnChangeListener sliderChanged = (slider, value, fromUser) -> {
+        if (!fromUser) return;
+        int progress = (int) value;
+        Control ctrlTemp = null;
 
-        @Override
-        public void onProgressChanged(SeekBar seekBar, int progresValue, boolean fromUser) {
-            progress = progresValue;
+        int id = slider.getId();
+        if (id == R.id.reverb_size_slider) {
+            ctrlTemp = reverbPedal.ctrlReverbSize;
+        } else if (id == R.id.reverb_level_slider) {
+            ctrlTemp = reverbPedal.ctrlReverbLevel;
+        } else if (id == R.id.delay_feedback_slider) {
+            ctrlTemp = delayPedal.ctrlDelayFeedback;
+        } else if (id == R.id.delay_level_slider) {
+            ctrlTemp = delayPedal.ctrlDelayLevel;
+        } else if (id == R.id.delay_time_slider) {
+            ctrlTemp = delayPedal.ctrlDelayTime;
+        } else if (id == R.id.mod_depth_slider) {
+            ctrlTemp = modPedal.ctrlModDepth;
+        } else if (id == R.id.mod_seqval_slider) {
+            ctrlTemp = modPedal.ctrlModSeqVal;
+        } else if (id == R.id.mod_manual_slider) {
+            ctrlTemp = modPedal.ctrlModManual;
+        } else if (id == R.id.mod_speed_slider) {
+            ctrlTemp = modPedal.ctrlModSpeed;
         }
 
-        @Override
-        public void onStartTrackingTouch(SeekBar seekBar) { }
-
-        @Override
-        public void onStopTrackingTouch(SeekBar seekBar) {
-            Control ctrlTemp = null;
-
-            switch (seekBar.getId()){
-                case R.id.reverb_size_slider: {
-                    ctrlTemp = reverbPedal.ctrlReverbSize;
-                    break;
-                }
-                case R.id.reverb_level_slider: {
-                    ctrlTemp = reverbPedal.ctrlReverbLevel;
-                    break;
-                }
-                case R.id.delay_feedback_slider: {
-                    ctrlTemp = delayPedal.ctrlDelayFeedback;
-                    break;
-                }
-                case R.id.delay_level_slider: {
-                    ctrlTemp = delayPedal.ctrlDelayLevel;
-                    break;
-                }
-                case R.id.delay_time_slider: {
-                    ctrlTemp = delayPedal.ctrlDelayTime;
-                    break;
-                }
-                case R.id.mod_depth_slider: {
-                    ctrlTemp = modPedal.ctrlModDepth;
-                    break;
-                }
-                case R.id.mod_seqval_slider: {
-                    ctrlTemp = modPedal.ctrlModSeqVal;
-                    break;
-                }
-                case R.id.mod_manual_slider: {
-                    ctrlTemp = modPedal.ctrlModManual;
-                    break;
-                }
-                case R.id.mod_speed_slider: {
-                    ctrlTemp = modPedal.ctrlModSpeed;
-                    break;
-                }
-            }
-            if (ctrlTemp == null) return;
-            ctrlTemp.controlValue = progress;
-            amp.SetControlValue(ctrlTemp, (progress*ctrlTemp.maxValue)/100);
-        }
+        if (ctrlTemp == null) return;
+        ctrlTemp.controlValue = progress;
+        amp.SetControlValue(ctrlTemp, (progress * ctrlTemp.maxValue) / 100);
     };
 
     @Override

@@ -1,149 +1,138 @@
 <?xml version="1.0" encoding="utf-8"?>
-<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<com.google.android.material.card.MaterialCardView xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    style="@style/Widget.App.CardView"
     android:layout_width="match_parent"
-    android:layout_height="match_parent"
-    xmlns:app="http://schemas.android.com/apk/res-auto">
+    android:layout_height="wrap_content"
+    app:cardBackgroundColor="@color/mod_background">
 
-    <View
-        android:id="@+id/view"
-        android:layout_width="344dp"
-        android:layout_height="228dp"
-        android:background="@drawable/empty_rectangle"
-        android:backgroundTint="@color/mod_background"
-        android:backgroundTintMode="multiply"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent" />
-
-    <TextView
-        android:id="@+id/pedal_label"
-        android:layout_width="wrap_content"
+    <LinearLayout
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_marginTop="5dp"
-        android:text="MODULATION"
-        android:textSize="20sp"
-        android:textStyle="bold"
-        app:layout_constraintEnd_toEndOf="@+id/view"
-        app:layout_constraintStart_toStartOf="@+id/view"
-        app:layout_constraintTop_toTopOf="@+id/view" />
+        android:orientation="vertical">
 
-    <Spinner
-        android:id="@+id/mod_type_list"
-        android:layout_width="200dp"
-        android:layout_height="22dp"
-        android:layout_marginTop="10dp"
-        android:background="@drawable/custom_dropdown"
-        android:entries="@array/mod_types"
-        app:layout_constraintEnd_toEndOf="@+id/view"
-        app:layout_constraintStart_toStartOf="@+id/view"
-        app:layout_constraintTop_toBottomOf="@+id/pedal_label" />
+        <!-- Header row: title + power -->
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:gravity="center_vertical"
+            android:layout_marginBottom="8dp">
 
-    <SeekBar
-        android:id="@+id/mod_seqval_slider"
-        android:layout_width="240dp"
-        android:layout_height="20dp"
-        android:layout_marginTop="16dp"
-        android:layout_marginEnd="20dp"
-        app:layout_constraintEnd_toEndOf="@+id/view"
-        app:layout_constraintHorizontal_bias="0.444"
-        app:layout_constraintStart_toEndOf="@+id/textView2"
-        app:layout_constraintTop_toBottomOf="@+id/mod_type_list" />
+            <TextView
+                android:id="@+id/pedal_label"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:text="MODULATION"
+                android:textColor="@color/mod_accent"
+                android:textSize="18sp"
+                android:textStyle="bold"
+                android:letterSpacing="0.1" />
 
-    <TextView
-        android:id="@+id/seqval_label"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="FEEDBACK"
-        android:textAlignment="textEnd"
-        app:layout_constraintEnd_toStartOf="@+id/mod_seqval_slider"
-        app:layout_constraintHorizontal_bias="0.685"
-        app:layout_constraintStart_toStartOf="@+id/view"
-        app:layout_constraintTop_toTopOf="@+id/mod_seqval_slider" />
+            <View
+                android:id="@+id/mod_power_led"
+                android:layout_width="12dp"
+                android:layout_height="12dp"
+                android:layout_marginEnd="12dp"
+                android:background="@drawable/led_off" />
 
-    <SeekBar
-        android:id="@+id/mod_depth_slider"
-        android:layout_width="240dp"
-        android:layout_height="20dp"
-        android:layout_marginTop="12dp"
-        android:layout_marginEnd="20dp"
-        app:layout_constraintEnd_toEndOf="@+id/view"
-        app:layout_constraintHorizontal_bias="1.0"
-        app:layout_constraintStart_toStartOf="@+id/mod_seqval_slider"
-        app:layout_constraintTop_toBottomOf="@+id/mod_seqval_slider" />
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/mod_power_switch"
+                style="@style/Widget.Material3.Button.IconButton.Filled.Tonal"
+                android:layout_width="40dp"
+                android:layout_height="40dp"
+                app:icon="@drawable/contactless_payment"
+                app:iconSize="20dp" />
 
-    <TextView
-        android:id="@+id/textView3"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginLeft="20dp"
-        android:text="DEPTH"
-        android:textAlignment="textEnd"
-        app:layout_constraintEnd_toStartOf="@+id/mod_depth_slider"
-        app:layout_constraintLeft_toLeftOf="@id/view"
-        app:layout_constraintTop_toTopOf="@+id/mod_depth_slider" />
+        </LinearLayout>
 
-    <SeekBar
-        android:id="@+id/mod_speed_slider"
-        android:layout_width="240dp"
-        android:layout_height="20dp"
-        android:layout_marginTop="12dp"
-        android:layout_marginEnd="20dp"
-        app:layout_constraintEnd_toEndOf="@+id/view"
-        app:layout_constraintHorizontal_bias="0.0"
-        app:layout_constraintStart_toStartOf="@+id/mod_depth_slider"
-        app:layout_constraintTop_toBottomOf="@+id/mod_depth_slider" />
+        <!-- Type dropdown -->
+        <com.google.android.material.textfield.TextInputLayout
+            android:id="@+id/mod_type_layout"
+            style="@style/Widget.App.ExposedDropdown"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="8dp"
+            android:hint="Type">
 
-    <TextView
-        android:id="@+id/textView4"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginLeft="20dp"
-        android:text="SPEED"
-        android:textAlignment="textEnd"
-        app:layout_constraintEnd_toStartOf="@+id/mod_speed_slider"
-        app:layout_constraintLeft_toLeftOf="@id/view"
-        app:layout_constraintTop_toTopOf="@+id/mod_speed_slider" />
+            <AutoCompleteTextView
+                android:id="@+id/mod_type_list"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:inputType="none"
+                android:textColor="@color/colorOnSurface" />
 
-    <SeekBar
-        android:id="@+id/mod_manual_slider"
-        android:layout_width="240dp"
-        android:layout_height="20dp"
-        android:layout_marginTop="16dp"
-        android:layout_marginEnd="20dp"
-        app:layout_constraintEnd_toEndOf="@+id/view"
-        app:layout_constraintStart_toStartOf="@+id/mod_speed_slider"
-        app:layout_constraintTop_toBottomOf="@+id/mod_speed_slider"
-        android:visibility="invisible"/>
+        </com.google.android.material.textfield.TextInputLayout>
 
-    <TextView
-        android:id="@+id/manual_label"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginLeft="20dp"
-        android:text="MANUAL"
-        android:textAlignment="textEnd"
-        android:visibility="invisible"
-        app:layout_constraintEnd_toStartOf="@+id/mod_manual_slider"
-        app:layout_constraintLeft_toLeftOf="@id/view"
-        app:layout_constraintTop_toTopOf="@+id/mod_manual_slider" />
+        <!-- SeqVal slider (label changes per mod type) -->
+        <TextView
+            android:id="@+id/seqval_label"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="FEEDBACK"
+            android:textColor="@color/colorOnSurfaceDim"
+            android:textSize="12sp" />
 
+        <com.google.android.material.slider.Slider
+            android:id="@+id/mod_seqval_slider"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:valueFrom="0"
+            android:valueTo="100"
+            android:stepSize="1" />
 
-    <ImageButton
-        android:id="@+id/mod_power_switch"
-        android:layout_width="36dp"
-        android:layout_height="36dp"
-        android:layout_marginTop="20dp"
-        android:layout_marginEnd="20dp"
-        android:elevation="4dp"
-        android:background="@drawable/stomp_switch"
-        app:layout_constraintEnd_toEndOf="@+id/view"
-        app:layout_constraintTop_toTopOf="parent" />
+        <!-- Depth slider -->
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="DEPTH"
+            android:textColor="@color/colorOnSurfaceDim"
+            android:textSize="12sp" />
 
-    <View
-        android:id="@+id/mod_power_led"
-        android:layout_width="36dp"
-        android:layout_height="36dp"
-        android:background="@drawable/led_off"
-        app:layout_constraintEnd_toEndOf="@+id/view"
-        app:layout_constraintTop_toTopOf="@+id/view" />
-</androidx.constraintlayout.widget.ConstraintLayout>
+        <com.google.android.material.slider.Slider
+            android:id="@+id/mod_depth_slider"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:valueFrom="0"
+            android:valueTo="100"
+            android:stepSize="1" />
+
+        <!-- Speed slider -->
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="SPEED"
+            android:textColor="@color/colorOnSurfaceDim"
+            android:textSize="12sp" />
+
+        <com.google.android.material.slider.Slider
+            android:id="@+id/mod_speed_slider"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:valueFrom="0"
+            android:valueTo="100"
+            android:stepSize="1" />
+
+        <!-- Manual slider (Flanger only) -->
+        <TextView
+            android:id="@+id/manual_label"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="MANUAL"
+            android:textColor="@color/colorOnSurfaceDim"
+            android:textSize="12sp"
+            android:visibility="gone" />
+
+        <com.google.android.material.slider.Slider
+            android:id="@+id/mod_manual_slider"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:valueFrom="0"
+            android:valueTo="100"
+            android:stepSize="1"
+            android:visibility="gone" />
+
+    </LinearLayout>
+
+</com.google.android.material.card.MaterialCardView>

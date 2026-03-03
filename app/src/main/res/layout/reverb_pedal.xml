@@ -1,99 +1,102 @@
 <?xml version="1.0" encoding="utf-8"?>
-<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<com.google.android.material.card.MaterialCardView xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    style="@style/Widget.App.CardView"
     android:layout_width="match_parent"
-    android:layout_height="match_parent"
-    xmlns:app="http://schemas.android.com/apk/res-auto">
+    android:layout_height="wrap_content"
+    app:cardBackgroundColor="@color/reverb_background">
 
-    <View
-        android:id="@+id/view"
-        android:layout_width="334dp"
-        android:layout_height="163dp"
-        android:background="@drawable/empty_rectangle"
-        android:backgroundTint="@color/reverb_background"
-        android:backgroundTintMode="multiply"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent" />
-
-    <TextView
-        android:id="@+id/textView"
-        android:layout_width="wrap_content"
+    <LinearLayout
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_marginTop="5dp"
-        android:text="REVERB"
-        android:textSize="20sp"
-        android:textStyle="bold"
-        app:layout_constraintEnd_toEndOf="@+id/view"
-        app:layout_constraintStart_toStartOf="@+id/view"
-        app:layout_constraintTop_toTopOf="@+id/view" />
+        android:orientation="vertical">
 
-    <Spinner
-        android:id="@+id/reverb_type_list"
-        android:layout_width="200dp"
-        android:layout_height="22dp"
-        android:layout_marginTop="10dp"
-        android:background="@drawable/custom_dropdown"
-        android:entries="@array/reverb_types"
-        app:layout_constraintEnd_toEndOf="@+id/view"
-        app:layout_constraintStart_toStartOf="@+id/view"
-        app:layout_constraintTop_toBottomOf="@+id/textView" />
+        <!-- Header row: title + power -->
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:gravity="center_vertical"
+            android:layout_marginBottom="8dp">
 
-    <SeekBar
-        android:id="@+id/reverb_size_slider"
-        android:layout_width="240dp"
-        android:layout_height="20dp"
-        android:layout_marginTop="16dp"
-        app:layout_constraintEnd_toEndOf="@+id/view"
-        app:layout_constraintHorizontal_bias="0.444"
-        app:layout_constraintStart_toEndOf="@+id/textView2"
-        app:layout_constraintTop_toBottomOf="@+id/reverb_type_list" />
+            <TextView
+                android:id="@+id/textView"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:text="REVERB"
+                android:textColor="@color/reverb_accent"
+                android:textSize="18sp"
+                android:textStyle="bold"
+                android:letterSpacing="0.1" />
 
-    <TextView
-        android:id="@+id/textView2"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginStart="32dp"
-        android:text="SIZE"
-        android:textAlignment="textEnd"
-        app:layout_constraintStart_toStartOf="@+id/view"
-        app:layout_constraintTop_toTopOf="@+id/reverb_size_slider" />
+            <View
+                android:id="@+id/reverb_power_led"
+                android:layout_width="12dp"
+                android:layout_height="12dp"
+                android:layout_marginEnd="12dp"
+                android:background="@drawable/led_off" />
 
-    <SeekBar
-        android:id="@+id/reverb_level_slider"
-        android:layout_width="240dp"
-        android:layout_height="20dp"
-        android:layout_marginTop="16dp"
-        android:layout_marginEnd="20dp"
-        app:layout_constraintEnd_toEndOf="@+id/view"
-        app:layout_constraintStart_toStartOf="@+id/reverb_size_slider"
-        app:layout_constraintTop_toBottomOf="@+id/reverb_size_slider" />
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/reverb_power_switch"
+                style="@style/Widget.Material3.Button.IconButton.Filled.Tonal"
+                android:layout_width="40dp"
+                android:layout_height="40dp"
+                app:icon="@drawable/contactless_payment"
+                app:iconSize="20dp" />
 
-    <TextView
-        android:id="@+id/textView3"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginLeft="20dp"
-        android:text="LEVEL"
-        android:textAlignment="textEnd"
-        app:layout_constraintLeft_toLeftOf="@id/view"
-        app:layout_constraintTop_toTopOf="@+id/reverb_level_slider" />
+        </LinearLayout>
 
-    <ImageButton
-        android:id="@+id/reverb_power_switch"
-        android:layout_width="36dp"
-        android:layout_height="36dp"
-        android:layout_marginTop="20dp"
-        android:layout_marginEnd="20dp"
-        android:elevation="4dp"
-        android:background="@drawable/stomp_switch"
-        app:layout_constraintEnd_toEndOf="@+id/view"
-        app:layout_constraintTop_toTopOf="parent" />
+        <!-- Type dropdown -->
+        <com.google.android.material.textfield.TextInputLayout
+            android:id="@+id/reverb_type_layout"
+            style="@style/Widget.App.ExposedDropdown"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="8dp"
+            android:hint="Type">
 
-    <View
-        android:id="@+id/reverb_power_led"
-        android:layout_width="36dp"
-        android:layout_height="36dp"
-        android:background="@drawable/led_off"
-        app:layout_constraintEnd_toEndOf="@+id/view"
-        app:layout_constraintTop_toTopOf="@+id/view" />
-</androidx.constraintlayout.widget.ConstraintLayout>
+            <AutoCompleteTextView
+                android:id="@+id/reverb_type_list"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:inputType="none"
+                android:textColor="@color/colorOnSurface" />
+
+        </com.google.android.material.textfield.TextInputLayout>
+
+        <!-- Size slider -->
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="SIZE"
+            android:textColor="@color/colorOnSurfaceDim"
+            android:textSize="12sp" />
+
+        <com.google.android.material.slider.Slider
+            android:id="@+id/reverb_size_slider"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:valueFrom="0"
+            android:valueTo="100"
+            android:stepSize="1" />
+
+        <!-- Level slider -->
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="LEVEL"
+            android:textColor="@color/colorOnSurfaceDim"
+            android:textSize="12sp" />
+
+        <com.google.android.material.slider.Slider
+            android:id="@+id/reverb_level_slider"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:valueFrom="0"
+            android:valueTo="100"
+            android:stepSize="1" />
+
+    </LinearLayout>
+
+</com.google.android.material.card.MaterialCardView>

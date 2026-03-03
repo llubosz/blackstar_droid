@@ -198,7 +198,7 @@ public class TunerFragment extends Fragment {
                 Log.e("BSD/TunerFragment", "View is null");
                 continue;
             }
-            v.setBackgroundColor(Color.WHITE);
+            v.setBackgroundResource(R.color.tuner_bar_idle);
         }
     }
 

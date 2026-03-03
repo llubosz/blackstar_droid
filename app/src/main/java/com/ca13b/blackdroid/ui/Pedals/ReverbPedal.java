@@ -2,23 +2,23 @@ package com.ca13b.blackdroid.ui.Pedals;
 
 import android.content.Context;
 import android.view.View;
-import android.widget.AdapterView;
-import android.widget.ImageButton;
-import android.widget.SeekBar;
-import android.widget.Spinner;
+import android.widget.ArrayAdapter;
+import android.widget.AutoCompleteTextView;
 
 import androidx.core.content.ContextCompat;
 
 import com.ca13b.blackdroid.BlackstarAmp;
 import com.ca13b.blackdroid.Control;
 import com.ca13b.blackdroid.R;
+import com.google.android.material.button.MaterialButton;
+import com.google.android.material.slider.Slider;
 
 public class ReverbPedal {
 
-    private Spinner reverb_type_list;
-    private SeekBar sbReverbSize;
-    private SeekBar sbReverbLevel;
-    private ImageButton reverbPowerSwitch;
+    private AutoCompleteTextView reverbTypeList;
+    private Slider slReverbSize;
+    private Slider slReverbLevel;
+    private MaterialButton reverbPowerSwitch;
     private View reverbPowerLed;
     public Control ctrlReverbSize;
     public Control ctrlReverbLevel;
@@ -30,7 +30,7 @@ public class ReverbPedal {
     public void InitializeControls(final Context context,
                                    final BlackstarAmp amp,
                                    final View root,
-                                   final SeekBar.OnSeekBarChangeListener seekBarChanged) {
+                                   final Slider.OnChangeListener sliderChanged) {
 
         this.amp = amp;
 
@@ -39,53 +39,43 @@ public class ReverbPedal {
         ctrlReverbType = amp.Controls.get(29);
         ctrlReverbPower = amp.Controls.get(17);
 
-        reverb_type_list = root.findViewById(R.id.reverb_type_list);
-        reverb_type_list.setOnItemSelectedListener(ddChange);
-        sbReverbLevel = root.findViewById(R.id.reverb_level_slider);
-        sbReverbLevel.setOnSeekBarChangeListener(seekBarChanged);
-        sbReverbSize = root.findViewById(R.id.reverb_size_slider);
-        sbReverbSize.setOnSeekBarChangeListener(seekBarChanged);
+        reverbTypeList = root.findViewById(R.id.reverb_type_list);
+        String[] reverbTypes = context.getResources().getStringArray(R.array.reverb_types);
+        ArrayAdapter<String> adapter = new ArrayAdapter<>(context,
+                android.R.layout.simple_dropdown_item_1line, reverbTypes);
+        reverbTypeList.setAdapter(adapter);
+        reverbTypeList.setOnItemClickListener((parent, view, position, id) ->
+                amp.SetControlValue(ctrlReverbType, position));
+
+        slReverbLevel = root.findViewById(R.id.reverb_level_slider);
+        slReverbLevel.addOnChangeListener(sliderChanged);
+        slReverbSize = root.findViewById(R.id.reverb_size_slider);
+        slReverbSize.addOnChangeListener(sliderChanged);
+
         reverbPowerLed = root.findViewById(R.id.reverb_power_led);
         reverbPowerSwitch = root.findViewById(R.id.reverb_power_switch);
-        reverbPowerSwitch.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-
-                reverbPowerOn = !reverbPowerOn;
-                ctrlReverbPower.controlValue = reverbPowerOn ? 1 : 0;
-
-                if (reverbPowerOn) {
-                    reverbPowerLed.setBackground(ContextCompat.getDrawable(context, R.drawable.led_on));
-                } else {
-                    reverbPowerLed.setBackground(ContextCompat.getDrawable(context, R.drawable.led_off));
-                }
-
-                amp.SetControlValue(ctrlReverbPower, ctrlReverbPower.controlValue);
-            }
+        reverbPowerSwitch.setOnClickListener(v -> {
+            reverbPowerOn = !reverbPowerOn;
+            ctrlReverbPower.controlValue = reverbPowerOn ? 1 : 0;
+            reverbPowerLed.setBackground(ContextCompat.getDrawable(context,
+                    reverbPowerOn ? R.drawable.led_on : R.drawable.led_off));
+            amp.SetControlValue(ctrlReverbPower, ctrlReverbPower.controlValue);
         });
+
         getInitialValues(context);
     }
 
-    private void getInitialValues(Context context){
-        sbReverbLevel.setProgress(ctrlReverbLevel.controlValue);
-        sbReverbSize.setProgress(ctrlReverbSize.controlValue);
-        reverb_type_list.setSelection(ctrlReverbType.controlValue);
+    private void getInitialValues(Context context) {
+        slReverbLevel.setValue(ctrlReverbLevel.controlValue);
+        slReverbSize.setValue(ctrlReverbSize.controlValue);
+
+        String[] reverbTypes = context.getResources().getStringArray(R.array.reverb_types);
+        if (ctrlReverbType.controlValue >= 0 && ctrlReverbType.controlValue < reverbTypes.length) {
+            reverbTypeList.setText(reverbTypes[ctrlReverbType.controlValue], false);
+        }
 
         reverbPowerOn = ctrlReverbPower.controlValue == 1;
-        if (reverbPowerOn){
-            reverbPowerLed.setBackground(ContextCompat.getDrawable(context, R.drawable.led_on));
-        } else {
-            reverbPowerLed.setBackground(ContextCompat.getDrawable(context, R.drawable.led_off));
-        }
+        reverbPowerLed.setBackground(ContextCompat.getDrawable(context,
+                reverbPowerOn ? R.drawable.led_on : R.drawable.led_off));
     }
-
-    private AdapterView.OnItemSelectedListener ddChange = new AdapterView.OnItemSelectedListener() {
-        @Override
-        public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
-            amp.SetControlValue(ctrlReverbType, position);
-        }
-
-        @Override
-        public void onNothingSelected(AdapterView<?> parent) {}
-    };
 }
