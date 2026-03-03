@@ -1,18 +1,13 @@
 package com.ca13b.blackdroid;
 
 import android.content.Context;
-import android.os.AsyncTask;
 import android.util.Log;
-
-import com.ca13b.blackdroid.ui.TunerFragment;
 
 import java.io.Serializable;
 import java.nio.ByteBuffer;
 import java.util.Dictionary;
 import java.util.HashMap;
 import java.util.Hashtable;
-import java.util.List;
-import java.util.Timer;
 
 public class BlackstarAmp implements Serializable {
 
@@ -202,8 +197,8 @@ public class BlackstarAmp implements Serializable {
         //TODO~~~
     }
 
-    public List<String> GetAllPresets() {
-        for (int i=0; 1<12; i++) {
+    public void GetAllPresets() {
+        for (int i = 1; i <= 128; i++) {
             GetPresetName(i);
         }
     }
@@ -214,20 +209,7 @@ public class BlackstarAmp implements Serializable {
         data[1] = 0x04;
         data[2] = (byte) preset;
         data[3] = 0x00;
-        //ByteBuffer result = usbCommunicator.SendData(data);
-        /*if (result.get(0) != 0x02 && result.get(1) != 0x04) {
-            presetsFragment.LogError( "I tried to get a preset name but got catshit.");
-            return "Unknown";
-        }
-        StringBuilder sb = new StringBuilder(64);
-        result.position(4);
-        while (result.hasRemaining()) {
-            int value = result.getInt();
-            sb.append(Utils.intToASCII(value));
-        }
-
-        return sb.toString();*/
-
+        usbCommunicator.SendData(data);
     }
 
     public void GetPresetValue(int preset) {
@@ -236,20 +218,7 @@ public class BlackstarAmp implements Serializable {
         data[1] = 0x05;
         data[2] = (byte) preset;
         data[3] = 0x00;
-       // ByteBuffer result =  usbCommunicator.SendData(data);
-
-        /*if (result.get(0) != 0x02 && result.get(1) != 0x05) {
-          //  presetsFragment.LogError( "I tried to get a preset value but got horseshit.");
-           // return -1;
-        }*/
-
-        /*while (result.position()<63) {
-            presetsFragment.LogInfo( result.position() + " presetValue byte: " + result.get());
-        }*/
-       /* presetsFragment.LogInfo( "Preset number is " + result.get(2));
-        presetsFragment.LogInfo( "Preset value packet poisiton is " + presetValuePacket.get(preset));
-        presetsFragment.LogInfo( "Returning " + result.get(presetValuePacket.get(preset)));*/
-       // return (int)result.get(presetValuePacket.get(preset));
+        usbCommunicator.SendData(data);
     }
 
     public void SelectPreset(int preset) {
@@ -258,7 +227,7 @@ public class BlackstarAmp implements Serializable {
         data[1] = 0x01;
         data[2] = (byte) preset;
         data[3] = 0x00;
-        //usbCommunicator.SendData(data);
+        usbCommunicator.SendData(data);
     }
 
     public void SwitchTunerMode(Boolean on) {
@@ -302,15 +271,51 @@ public class BlackstarAmp implements Serializable {
         usbCommunicator.SendData(data);
     }
 
-    public static void HandlePresetNameResponse(ByteBuffer packet) {
+    public void WritePresetName(int preset, String name) {
+        byte[] data = new byte[64];
+        data[0] = 0x02;
+        data[1] = 0x02;
+        data[2] = (byte) preset;
+        data[3] = 0x15;
+        byte[] nameBytes = name.getBytes();
+        for (int i = 0; i < Math.min(nameBytes.length, 20); i++) {
+            data[4 + i] = nameBytes[i];
+        }
+        usbCommunicator.SendData(data);
+    }
 
-         byte presetId = packet.get(2);
-         StringBuilder sbPresetName = new StringBuilder(21);
-         for (int i=4; i<26; i++){
-             sbPresetName.append((char)packet.get(i));
-         }
+    public void WritePresetSettings(int preset) {
+        byte[] data = new byte[64];
+        data[0] = 0x02;
+        data[1] = 0x03;
+        data[2] = (byte) preset;
+        data[3] = 0x29;
 
-         //presetsFragment.LogInfo( String.format("Preset {0} is named {1}", presetId, sbPresetName.toString()));
+        // Build 42-byte settings payload from current Controls
+        // Each control's value goes at offset (controlId - 1) + 4 in the packet
+        // which mirrors the protocol: control values at positions 4..45
+        for (int c = 1; c <= Controls.size(); c++) {
+            Control ctrl = Controls.get(c);
+            if (ctrl != null) {
+                int offset = ctrl.controlId + 3;
+                if (offset < 64) {
+                    if (ctrl.controlName.equals("delay_time")) {
+                        data[offset] = (byte) (ctrl.controlValue % 256);
+                        if (offset + 1 < 64) {
+                            data[offset + 1] = (byte) (ctrl.controlValue / 256);
+                        }
+                    } else {
+                        data[offset] = ctrl.controlValue.byteValue();
+                    }
+                }
+            }
+        }
+        usbCommunicator.SendData(data);
+    }
+
+    public void SavePreset(int preset, String name) {
+        WritePresetName(preset, name);
+        WritePresetSettings(preset);
     }
 
     public static void HandleControlValueResponse(byte controlId, byte controlValue){

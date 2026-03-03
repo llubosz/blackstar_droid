@@ -165,22 +165,21 @@ class UsbRunnable implements Runnable {
     }
 
     private void HandlePresetValues(ByteBuffer buffer) {
-        if (buffer.get(1) == 4) {
-            Log.i(tag, "I'm preset name packet");
+        int type = buffer.get(1);
+        int presetNumber = buffer.get(2) & 0xFF;
+
+        if (type == 4) {
+            Log.i(tag, "Preset name packet for preset " + presetNumber);
             Log.i(tag, parsePacket(buffer));
-            BlackstarAmp.HandlePresetNameResponse(buffer);
-        } else if (buffer.get(1) == 5) {
-            //# Then packet contains settings for the preset
-            // todo: parse entire packet, getting the values for each of the settings
-        } else if (buffer.get(1) == 6) {
-                            /*  # Then packet is indicating that the preset has been
-                                # changed on the amp. This can happen if the user
-                                # selects a preset with an amp button. But, this
-                                # packet is also sent after the amp changes channel in
-                                # response to sending a packet to change channel.*/
-            byte preset = buffer.get(2);
-            //todo: what to do with this info?? FIIK
+        } else if (type == 5) {
+            Log.i(tag, "Preset settings packet for preset " + presetNumber);
+            Log.i(tag, parsePacket(buffer));
+        } else if (type == 6) {
+            Log.i(tag, "Preset changed to " + presetNumber);
+            Log.i(tag, parsePacket(buffer));
         }
+
+        MainActivity.getInstance().HandlePresetData(type, presetNumber, buffer);
     }
 
     private String parsePacket(ByteBuffer buffer){

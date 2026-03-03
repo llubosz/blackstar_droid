@@ -44,10 +44,22 @@ public class MainActivity extends AppCompatActivity {
 
     private FragmentRefreshListener fragmentRefreshListener;
 
+    public PresetRefreshListener getPresetRefreshListener() {
+        return presetRefreshListener;
+    }
+
+    public void setPresetRefreshListener(PresetRefreshListener presetRefreshListener) {
+        this.presetRefreshListener = presetRefreshListener;
+    }
+
+    private PresetRefreshListener presetRefreshListener;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
 
         super.onCreate(savedInstanceState);
+        blackstarAmp = new BlackstarAmp(this);
+        instance = this;
         setContentView(R.layout.activity_main);
         BottomNavigationView navView = findViewById(R.id.nav_view);
         // Passing each menu ID as a set of Ids because each
@@ -64,14 +76,11 @@ public class MainActivity extends AppCompatActivity {
 
         IntentFilter detachedFilter = new IntentFilter();
         detachedFilter.addAction(UsbManager.ACTION_USB_DEVICE_DETACHED);
-        registerReceiver(usbReceiver, detachedFilter);
+        registerReceiver(usbReceiver, detachedFilter, Context.RECEIVER_NOT_EXPORTED);
 
         IntentFilter permissionFilter = new IntentFilter(ACTION_USB_PERMISSION);
-        registerReceiver(usbReceiver, permissionFilter);
+        registerReceiver(usbReceiver, permissionFilter, Context.RECEIVER_NOT_EXPORTED);
 
-        blackstarAmp = new BlackstarAmp(this);
-
-        instance = this;
     }
 
 
@@ -120,6 +129,39 @@ public class MainActivity extends AppCompatActivity {
 
     public interface FragmentRefreshListener{
         void onRefresh(ByteBuffer buffer);
+    }
+
+    public interface PresetRefreshListener {
+        void onPresetNameReceived(int presetNumber, String name);
+        void onPresetSettingsReceived(int presetNumber, ByteBuffer packet);
+        void onPresetChanged(int presetNumber);
+    }
+
+    public void HandlePresetData(final int type, final int presetNumber, final ByteBuffer packet) {
+        if (getPresetRefreshListener() != null) {
+            runOnUiThread(new Runnable() {
+                @Override
+                public void run() {
+                    switch (type) {
+                        case 4:
+                            StringBuilder sb = new StringBuilder(21);
+                            for (int i = 4; i < 25; i++) {
+                                byte b = packet.get(i);
+                                if (b == 0) break;
+                                sb.append((char) b);
+                            }
+                            getPresetRefreshListener().onPresetNameReceived(presetNumber, sb.toString());
+                            break;
+                        case 5:
+                            getPresetRefreshListener().onPresetSettingsReceived(presetNumber, packet);
+                            break;
+                        case 6:
+                            getPresetRefreshListener().onPresetChanged(presetNumber);
+                            break;
+                    }
+                }
+            });
+        }
     }
 
     @Override
